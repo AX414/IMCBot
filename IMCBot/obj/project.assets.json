@@ -7238,11 +7238,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\joaov\\source\\repos\\multi-turn-prompt\\MultiTurnPromptBot.csproj",
+      "projectUniqueName": "C:\\Users\\joaov\\source\\repos\\IMCBot\\MultiTurnPromptBot.csproj",
       "projectName": "MultiTurnPromptBot",
-      "projectPath": "C:\\Users\\joaov\\source\\repos\\multi-turn-prompt\\MultiTurnPromptBot.csproj",
+      "projectPath": "C:\\Users\\joaov\\source\\repos\\IMCBot\\MultiTurnPromptBot.csproj",
       "packagesPath": "C:\\Users\\joaov\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\joaov\\source\\repos\\multi-turn-prompt\\obj\\",
+      "outputPath": "C:\\Users\\joaov\\source\\repos\\IMCBot\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\joaov\\AppData\\Roaming\\NuGet\\NuGet.Config",

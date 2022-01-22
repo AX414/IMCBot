@@ -26,6 +26,7 @@ namespace Microsoft.BotBuilderSamples
             var waterfallSteps = new WaterfallStep[]
             {
                 EtapaPerguntaNomeAsync,
+                EtapaPerguntaSexoAsync,
                 EtapaPerguntaAlturaAsync,
                 EtapaPerguntaPesoAsync,
                 EtapaIMCAsync,
@@ -34,8 +35,9 @@ namespace Microsoft.BotBuilderSamples
             // Add named dialogs to the DialogSet. These names are saved in the dialog state.
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));
             AddDialog(new TextPrompt(nameof(TextPrompt)));
+            AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
             AddDialog(new NumberPrompt<int>(nameof(NumberPrompt<int>), AlturaValidatorAsync));
-            AddDialog(new NumberPrompt<float>(nameof(NumberPrompt<float>), PesoValidatorAsync));
+            AddDialog(new NumberPrompt<int>(nameof(NumberPrompt<int>), PesoValidatorAsync));
 
             // The initial child Dialog to run.
             InitialDialogId = nameof(WaterfallDialog);
@@ -48,13 +50,27 @@ namespace Microsoft.BotBuilderSamples
                 Prompt = MessageFactory.Text("Por favor, insira seu nome.") 
             }, cancellationToken);
         }
+
         
-        // Usuário confirma o nome e pede a altura
-        private async Task<DialogTurnResult>EtapaPerguntaAlturaAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private static async Task<DialogTurnResult> EtapaPerguntaSexoAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             stepContext.Values["nome"] = (string)stepContext.Result;
 
             await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Obrigado, {stepContext.Result}."), cancellationToken);
+
+            return await stepContext.PromptAsync(nameof(ChoicePrompt),
+                new PromptOptions
+                {
+                    Prompt = MessageFactory.Text("Selecione seu sexo."),
+                    Choices = ChoiceFactory.ToChoices(new List<string> { "Masculino", "Feminino"}),
+                }, cancellationToken);
+        }
+
+
+        // Usuário confirma o nome e pede a altura
+        private async Task<DialogTurnResult>EtapaPerguntaAlturaAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            stepContext.Values["sexo"] = ((FoundChoice)stepContext.Result).Value;
 
             var promptOptions = new PromptOptions
             {
@@ -76,25 +92,29 @@ namespace Microsoft.BotBuilderSamples
                 RetryPrompt = MessageFactory.Text("O peso deve ser maior que 0."),
             };
 
-            return await stepContext.PromptAsync(nameof(NumberPrompt<float>),promptOptions, cancellationToken);
+            return await stepContext.PromptAsync(nameof(NumberPrompt<int>),promptOptions, cancellationToken);
         }
         
         // Faz o Cálculo do IMC
         private async Task<DialogTurnResult> EtapaIMCAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+
+            stepContext.Values["peso"] = (int)stepContext.Result;
+
             // Instancia o userProfile
             var userProfile = await _userProfileAccessor.GetAsync(stepContext.Context, () => new UserProfile(), cancellationToken);
 
             userProfile.Nome = (string)stepContext.Values["nome"];
+            userProfile.Sexo = (string)stepContext.Values["sexo"];
             userProfile.Altura = (int)stepContext.Values["altura"];
-            userProfile.Peso = (float)stepContext.Values["peso"];
+            userProfile.Peso = (int)stepContext.Values["peso"];
 
             // Mensagem
-            var msg = $"Nome: {userProfile.Nome}\r\nAltura: {userProfile.Altura} cm\r\nPeso: {userProfile.Peso}";
+            var msg = $"+=====DADOS SALVOS=====+\r\nNome: {userProfile.Nome}\r\nSexo: {userProfile.Sexo}\r\nAltura: {userProfile.Altura} cm\r\nPeso: {userProfile.Peso} Kg";
 
             // Link de referência: https://www.sallet.com.br/o-que-e-peso-ideal-e-como-calcula-lo/#:~:text=O%20c%C3%A1lculo%20%C3%A9%20bastante%20simples,%C3%B7%20Altura%20(m)%C2%B2.
-            var IMC = userProfile.Peso/(userProfile.Altura * userProfile.Altura);
-                
+            double IMC = userProfile.Peso/(userProfile.Altura * userProfile.Altura);
+            
             msg += $"\r\nIMC: {IMC}";
 
             /*
