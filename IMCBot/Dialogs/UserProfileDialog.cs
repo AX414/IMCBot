@@ -138,9 +138,12 @@ namespace Microsoft.BotBuilderSamples
             if(IMC <= 18.5)
             {
                 resposta = $"Abaixo do peso";
-            }else if(IMC >=25.0 && IMC <= 29.9)
+            }else if(IMC >=18.5 && IMC <= 24.9)
             {
                 resposta = $"Peso normal";
+            }else if(IMC >=25.0 && IMC <= 29.9)
+            {
+                resposta = $"Sobrepeso";
             }else if(IMC >=30.0 && IMC <= 34.99){
                 resposta = $"Obesidade Grau I";
             }else if(IMC >=35.0 && IMC <= 39.99)
