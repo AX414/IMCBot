@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -36,8 +37,8 @@ namespace Microsoft.BotBuilderSamples
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
-            AddDialog(new NumberPrompt<int>(nameof(NumberPrompt<int>), AlturaValidatorAsync));
-            AddDialog(new NumberPrompt<int>(nameof(NumberPrompt<int>), PesoValidatorAsync));
+            AddDialog(new NumberPrompt<double>(nameof(NumberPrompt<double>), AlturaValidatorAsync));
+            AddDialog(new NumberPrompt<double>(nameof(NumberPrompt<double>), PesoValidatorAsync));
 
             // The initial child Dialog to run.
             InitialDialogId = nameof(WaterfallDialog);
@@ -78,13 +79,13 @@ namespace Microsoft.BotBuilderSamples
                 RetryPrompt = MessageFactory.Text("A altura deve ser maior que 0."),
             };
 
-            return await stepContext.PromptAsync(nameof(NumberPrompt<int>), promptOptions, cancellationToken);
+            return await stepContext.PromptAsync(nameof(NumberPrompt<double>), promptOptions, cancellationToken);
         }
         
         // Usuário confirma a altura e pede o peso
         private async Task<DialogTurnResult> EtapaPerguntaPesoAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            stepContext.Values["altura"] = (int)stepContext.Result;
+            stepContext.Values["altura"] = (double)stepContext.Result;
 
             var promptOptions = new PromptOptions
             {
@@ -92,29 +93,36 @@ namespace Microsoft.BotBuilderSamples
                 RetryPrompt = MessageFactory.Text("O peso deve ser maior que 0."),
             };
 
-            return await stepContext.PromptAsync(nameof(NumberPrompt<int>),promptOptions, cancellationToken);
+            return await stepContext.PromptAsync(nameof(NumberPrompt<double>),promptOptions, cancellationToken);
         }
         
         // Faz o Cálculo do IMC
         private async Task<DialogTurnResult> EtapaIMCAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
 
-            stepContext.Values["peso"] = (int)stepContext.Result;
+            stepContext.Values["peso"] = (double)stepContext.Result;
 
             // Instancia o userProfile
             var userProfile = await _userProfileAccessor.GetAsync(stepContext.Context, () => new UserProfile(), cancellationToken);
 
             userProfile.Nome = (string)stepContext.Values["nome"];
             userProfile.Sexo = (string)stepContext.Values["sexo"];
-            userProfile.Altura = (int)stepContext.Values["altura"];
-            userProfile.Peso = (int)stepContext.Values["peso"];
+            userProfile.Altura = (double)stepContext.Values["altura"];
+            userProfile.Peso = (double)stepContext.Values["peso"];
+
+            //double altura, peso;
+            //altura = (Convert.ToDouble((int)stepContext.Values["altura"]));
+            //peso = Convert.ToDouble((int)stepContext.Values["peso"]);
 
             // Mensagem
-            var msg = $"+=====DADOS SALVOS=====+\r\nNome: {userProfile.Nome}\r\nSexo: {userProfile.Sexo}\r\nAltura: {userProfile.Altura} cm\r\nPeso: {userProfile.Peso} Kg";
+            var msg = $"+======DADOS SALVOS======+\r\nNome: {userProfile.Nome}\r\nSexo: {userProfile.Sexo}\r\nAltura: {userProfile.Altura} cm\r\nPeso: {userProfile.Peso} Kg";
 
             // Link de referência: https://www.sallet.com.br/o-que-e-peso-ideal-e-como-calcula-lo/#:~:text=O%20c%C3%A1lculo%20%C3%A9%20bastante%20simples,%C3%B7%20Altura%20(m)%C2%B2.
-            double IMC = userProfile.Peso/(userProfile.Altura * userProfile.Altura);
+            double aux = 0.0;
+            aux += (userProfile.Peso/(userProfile.Altura * userProfile.Altura));
             
+            double IMC = Math.Round(aux,2);
+
             msg += $"\r\nIMC: {IMC}";
 
             /*
@@ -130,15 +138,15 @@ namespace Microsoft.BotBuilderSamples
             if(IMC <= 18.5)
             {
                 resposta = $"Abaixo do peso";
-            }else if(IMC >=25 && IMC <= 29.9)
+            }else if(IMC >=25.0 && IMC <= 29.9)
             {
                 resposta = $"Peso normal";
-            }else if(IMC >=30 && IMC <= 34.99){
+            }else if(IMC >=30.0 && IMC <= 34.99){
                 resposta = $"Obesidade Grau I";
-            }else if(IMC >=35 && IMC <= 39.99)
+            }else if(IMC >=35.0 && IMC <= 39.99)
             {
                 resposta = $"Obesidade Grau II";
-            }else if(IMC >= 40)
+            }else if(IMC >= 40.0)
             {
                 resposta = $"Obesidade Grau III";
             }
@@ -154,17 +162,17 @@ namespace Microsoft.BotBuilderSamples
         //===========VALIDATORS======================
 
         // Validação da altura
-        private static Task<bool> AlturaValidatorAsync(PromptValidatorContext<int> promptContext, CancellationToken cancellationToken)
+        private static Task<bool> AlturaValidatorAsync(PromptValidatorContext<double> promptContext, CancellationToken cancellationToken)
         {
             // This condition is our validation rule. You can also change the value at this point.
-            return Task.FromResult(promptContext.Recognized.Succeeded && promptContext.Recognized.Value > 0);
+            return Task.FromResult(promptContext.Recognized.Succeeded && promptContext.Recognized.Value > 0.0);
         }
 
         // Validação do peso
-        private static Task<bool> PesoValidatorAsync(PromptValidatorContext<int> promptContext, CancellationToken cancellationToken)
+        private static Task<bool> PesoValidatorAsync(PromptValidatorContext<double> promptContext, CancellationToken cancellationToken)
         {
             // This condition is our validation rule. You can also change the value at this point.
-            return Task.FromResult(promptContext.Recognized.Succeeded && promptContext.Recognized.Value > 0);
+            return Task.FromResult(promptContext.Recognized.Succeeded && promptContext.Recognized.Value > 0.0);
         }
 
     }

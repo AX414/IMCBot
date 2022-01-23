@@ -14,9 +14,9 @@ namespace Microsoft.BotBuilderSamples
 
         public string Sexo { get; set; }
 
-        public int Altura { get; set; }
+        public double Altura { get; set; }
 
-        public int Peso { get; set; }
+        public double Peso { get; set; }
 
     }
 }
