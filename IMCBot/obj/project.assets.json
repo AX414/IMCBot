@@ -7238,9 +7238,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\joaov\\Documents\\GitHub\\IMCBot\\IMCBot\\MultiTurnPromptBot.csproj",
-      "projectName": "MultiTurnPromptBot",
-      "projectPath": "C:\\Users\\joaov\\Documents\\GitHub\\IMCBot\\IMCBot\\MultiTurnPromptBot.csproj",
+      "projectUniqueName": "C:\\Users\\joaov\\Documents\\GitHub\\IMCBot\\IMCBot\\IMCBot.csproj",
+      "projectName": "IMCBot",
+      "projectPath": "C:\\Users\\joaov\\Documents\\GitHub\\IMCBot\\IMCBot\\IMCBot.csproj",
       "packagesPath": "C:\\Users\\joaov\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\joaov\\Documents\\GitHub\\IMCBot\\IMCBot\\obj\\",
       "projectStyle": "PackageReference",
